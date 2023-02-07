@@ -171,3 +171,6 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 
 PAYSTACK_PUBLIC_KEY=env("PAYSTACK_PUBLIC_KEY")
 PAYSTACK_SECRET_KEY=env("PAYSTACK_SECRET_KEY")
+
+import django_heroku
+django_heroku.settings(locals())
