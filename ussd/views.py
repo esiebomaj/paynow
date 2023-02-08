@@ -15,6 +15,8 @@ class USSDCallbackView(APIView):
             phone_number = request.data.get("phoneNumber", None)
             text = request.data.get("text", "").strip()
             ussd_res = ""
+            
+            
             if text == "":
                 # this is a new request
                 user = UserService().retrieve_user_by_phone_with_ext(phone_with_ext=phone_number)
@@ -48,10 +50,10 @@ class USSDCallbackView(APIView):
                 print("Amount to be sent or recieved: ", amount)
                 if text.split("*")[0] == "1":
                     # wants to recive payment
-                    ussd_res += "CON Provide the Reciever's paynow ID ? \n"
+                    ussd_res += "CON Provide the Sender's paynow ID ? \n"
                 if text.split("*")[0] == "2":
                     # wants to send payment
-                    ussd_res += "CON Provide the Sender's paynow ID ? \n"
+                    ussd_res += "CON Provide the Reciever's paynow ID ? \n"
                 
 
             if len(text.split("*")) == 3:
@@ -97,13 +99,15 @@ class USSDCallbackView(APIView):
                 if text.split("*")[0] == "2":
                     # wants to send payment
                     sender_phone = phone_number
+                    sender_pin = text.split("*")[3]
+                    sender = UserService().retrieve_user_by_phone_with_ext(phone_with_ext = sender_phone)
+                    UserService().authenticate(sender.username, sender_pin)
+                    
                     reciever_username = text.split("*")[2]
-                    reciever_pin = text.split("*")[3]
-                    reciever = UserService().authenticate(reciever_username, reciever_pin)
-                    sender = UserService().retrieve_user_by_phone_with_ext(phone_with_ext=sender_phone)
+                    reciever = UserService().retrieve(username=reciever_username)
 
                     if not reciever:
-                        ussd_res += "END Invalid Recievers credentials \n"
+                        ussd_res += "END Invalid credentials \n"
                         ussd_res += "Try again \n"
                     else:
                         transfer_data = {
