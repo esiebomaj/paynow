@@ -6,6 +6,7 @@ from wallets.choices import WalletEntryTypes
 from wallets.models import Wallet, WalletTransfer
 from wallets.wallet_logger import WalletLogger
 from accounts.service import UserService
+from accounts.models import Phone
 from django.db.transaction import atomic
 
 class WalletService:
@@ -41,6 +42,14 @@ class WalletService:
         
         return {"message": "payment pending, pls wait"}
 
+    def get_wallet_balance_using_phone(self, phone_number):
+        phone = Phone.objects.filter(phone_with_ext=phone_number).first()
+        if not phone:
+            return None
+        wallet = Wallet.objects.filter(user = phone.user).first()
+        if not wallet:
+            return None
+        return wallet.balance
 
     def withdraw(self, data):
         serializer = WithdrawWalletSerializer(data=data)

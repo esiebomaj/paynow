@@ -5,10 +5,13 @@ class User(AbstractUser):
 
     USERNAME_FIELD="username"
 
+def test_this():
+    pass
 
 class Phone(models.Model):
     ext = models.CharField(max_length=5, null=False, blank=False)
     phone_number =  models.CharField(max_length=20, null=False, blank=False)
+    phone_with_ext =  models.CharField(max_length=100, null=False, blank=False)
     verified = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 

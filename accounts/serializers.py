@@ -19,6 +19,9 @@ class CustomRegisterSerializer(RegisterSerializer):
     ext = serializers.CharField( max_length=5, min_length=1, required=True,)
 
     def validate_phone_number(self, phone_number):
+        if phone_number[0] == "0":
+            raise ValidationError("Remove trailing 0 (Zero)")
+        
         # check exists
         if Phone.objects.filter(phone_number=phone_number, ext=self.initial_data.get("ext")).exists():
             raise ValidationError("phone number exists")
@@ -26,11 +29,16 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     def custom_signup(self, request, user):
         with atomic():
-        
+            
+            phone_number = str(request.data.get("phone_number"))
+            ext = str(request.data.get("ext"))
+            phone_with_ext = "+" + ext + phone_data
+
             phone_data = {  "user":user.id, 
-                            "phone_number": str(request.data.get("phone_number")),
-                            "ext": str(request.data.get("ext"))
-                            }
+                            "phone_number": phone_number,
+                            "ext": ext,
+                            "phone_with_ext": phone_with_ext }
+
             # create phone for user
             serializer = PhoneSerializer(data=phone_data)
             serializer.is_valid(raise_exception=True)

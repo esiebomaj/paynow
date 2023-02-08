@@ -56,7 +56,8 @@ INSTALLED_APPS = [
 
     'accounts',
     'wallets',
-    'payments'
+    'payments',
+    'ussd',
 ]
 
 SITE_ID = 1
