@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 class PaymentStatus(models.TextChoices):
     CREATED = "created"
-    COMPLETED = "comleted"
+    COMPLETED = "completed"
     FAILED = "failed"
 
 

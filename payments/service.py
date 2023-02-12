@@ -13,7 +13,6 @@ class PaymentService:
     def init_payment(self, data):
         with atomic():
             res = Paystack().init_transaction({"email": data.get("email"), "amount": data.get("amount")})
-            print(res)
             payment_obj = Payment.objects.create(
                 external_authorization_url = res["authorization_url"], 
                 external_access_code = res["access_code"],
@@ -59,7 +58,6 @@ class PaymentService:
             user_id = data["user_id"]
             bank_account = BankAccountService().retrieve(id=bank_acc_id, user_id=user_id)
 
-            print(bank_account)
             if not bank_account.external_reciepient_id:
                 reciepient_data = {
                     "type": "nuban", 
@@ -69,7 +67,6 @@ class PaymentService:
                     "currency": bank_account.currency
                 }
                 res = Paystack().create_recipient(data=reciepient_data)
-                print(res)
                 bank_account.external_reciepient_id = res["data"]["recipient_code"]
                 bank_account.save()
             
@@ -84,7 +81,6 @@ class PaymentService:
 
             res = Paystack().deposit_to_bank(transfer_data)
 
-            print(res)
             payment_obj = Payment.objects.create(
                 external_reference = ref,
                 purpose = data.get("entry_type"),
@@ -100,12 +96,16 @@ class PaymentService:
             res = Paystack().get_list_of_banks()
             return res
 
+    def list(self, **kwargs):
+        with atomic():
+            res = Payment.objects.filter(**kwargs)
+            return res
+
     def acknoledge_webhook(self, data):
         with atomic():
             event = data.get("event")
             data = data.get("data", {})
             reference = data.get("reference")
-            print(event, reference)
             payment = Payment.objects.get(external_reference = reference)
 
             if payment.status in [PaymentStatus.COMPLETED, PaymentStatus.FAILED]:

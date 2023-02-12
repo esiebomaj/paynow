@@ -12,3 +12,8 @@ class Payment(models.Model):
     amount = models.IntegerField()
     user_id = models.CharField(max_length=100)
     meta = models.JSONField(default=dict)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at", )

@@ -156,7 +156,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    "EXCEPTION_HANDLER": "paynow.exception_handler.handler",
 }
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = 'pay-now-auth'

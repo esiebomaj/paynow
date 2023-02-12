@@ -14,8 +14,7 @@ class USSDCallbackView(APIView):
             service_code = request.data.get("serviceCode", None)
             phone_number = request.data.get("phoneNumber", None)
             text = request.data.get("text", "").strip()
-            ussd_res = ""
-            
+            ussd_res = "" 
             
             if text == "":
                 # this is a new request
