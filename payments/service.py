@@ -12,7 +12,7 @@ class PaymentService:
 
     def init_payment(self, data):
         with atomic():
-            res = Paystack().init_transaction({"email": data.get("email"), "amount": data.get("amount")})
+            res = Paystack().init_transaction({"email": data.get("email"), "amount": 100 * int(data.get("amount", 0))})
             payment_obj = Payment.objects.create(
                 external_authorization_url = res["authorization_url"], 
                 external_access_code = res["access_code"],
@@ -72,7 +72,7 @@ class PaymentService:
             
             ref = str(uuid.uuid4())
             transfer_data = {
-                "amount": data["amount"],
+                "amount": 100*int(data["amount"]),
                 "source": "balance",
                 "reason": "Withdrawal from PayNow wallet",
                 "reference": ref,
