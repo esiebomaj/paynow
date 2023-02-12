@@ -50,17 +50,19 @@ class CustomRegisterSerializer(RegisterSerializer):
             super().custom_signup(request, user)
 
 
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BankAccount
+        fields = "__all__"
 
 class CustomeUserSerializer(UserDetailsSerializer):
     def to_representation(self, instance):
         rt = super().to_representation(instance)
         phone = Phone.objects.filter(user_id=instance.id).first()
         wallet = Wallet.objects.filter(user_id=instance.id).first()
+        accounts = BankAccount.objects.filter(user_id=instance.id)
         rt["phone"] = PhoneSerializer(instance=phone).data if phone else None
         rt["wallet"] = WalletSerializer(instance=wallet).data if wallet else None
+        rt["bank_accounts"] = AccountSerializer(instance=accounts, many=True).data 
         return rt
 
-class AccountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BankAccount
-        fields = "__all__"
