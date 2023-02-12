@@ -34,7 +34,7 @@ def handler(exc, context):
         if message is not None or message != "" and "This" in message:
             message = message.replace("This", "'{}'".format(fieldKey), 1)
         data = {"message": str(message)}
-
+        print(data)
         response = Response(data, status=exc.status_code)
         return response
 
@@ -47,7 +47,7 @@ def handler(exc, context):
         except Exception as e:
             status = 422
         data = {"message": str(exc)}
-
+        print(data)
         response = Response(data, status=status)
 
     return response

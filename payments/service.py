@@ -88,6 +88,15 @@ class PaymentService:
                 user_id = data.get("user_id"),
                 meta = res
             )
+
+            # log to wallet
+            WalletLogger().log({
+                "user_id": payment_obj.user_id,
+                "reference": payment_obj.id,
+                "entry_type": payment_obj.purpose,
+                "amount": payment_obj.amount
+                })
+
             res["payment_id"] = payment_obj.id
             return res
 
@@ -102,6 +111,7 @@ class PaymentService:
             return res
 
     def acknoledge_webhook(self, data):
+        print(data)
         with atomic():
             event = data.get("event")
             data = data.get("data", {})
@@ -115,23 +125,32 @@ class PaymentService:
                 payment.status = PaymentStatus.COMPLETED
                 payment.meta = data
                 payment.save()
-                # log to wallet
-                WalletLogger().log({
-                    "user_id": payment.user_id,
-                    "reference": payment.id,
-                    "entry_type": payment.purpose,
-                    "amount": payment.amount
-                })
-
+                
+            
             elif event ==  "transfer.failed":
                 payment.status = PaymentStatus.FAILED
                 payment.meta = data
                 payment.save()
 
+                WalletLogger().unlog({
+                "user_id": payment.user_id,
+                "reference": payment.id,
+                "entry_type": payment.purpose,
+                "amount": payment.amount
+                })
+                
+
             elif event == "transfer.reversed":
                 payment.status = PaymentStatus.FAILED
                 payment.meta = data
                 payment.save()
+
+                WalletLogger().unlog({
+                "user_id": payment.user_id,
+                "reference": payment.id,
+                "entry_type": payment.purpose,
+                "amount": payment.amount
+                })
 
             elif event == "charge.success":
                 payment.status = PaymentStatus.COMPLETED
