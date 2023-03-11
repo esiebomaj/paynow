@@ -18,9 +18,15 @@ class CustomRegisterSerializer(RegisterSerializer):
     phone_number = serializers.CharField( max_length=20, min_length=5, required=True,)
     ext = serializers.CharField( max_length=5, min_length=1, required=True,)
 
+    def validate_ext(self, ext):
+        if ext[0] == "+":
+            raise ValidationError("Remove leading + (plus) in extension")
+        
+        return ext
+        
     def validate_phone_number(self, phone_number):
         if phone_number[0] == "0":
-            raise ValidationError("Remove trailing 0 (Zero)")
+            raise ValidationError("Remove leading 0 (Zero)")
         
         # check exists
         if Phone.objects.filter(phone_number=phone_number, ext=self.initial_data.get("ext")).exists():
@@ -32,7 +38,8 @@ class CustomRegisterSerializer(RegisterSerializer):
             
             phone_number = str(request.data.get("phone_number"))
             ext = str(request.data.get("ext"))
-            phone_with_ext = "+" + ext + phone_data
+
+            phone_with_ext = "+" + ext + phone_number
 
             phone_data = {  "user":user.id, 
                             "phone_number": phone_number,
